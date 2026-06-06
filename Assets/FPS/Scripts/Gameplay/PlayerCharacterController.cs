@@ -1,4 +1,4 @@
-﻿using Unity.FPS.Game;
+using Unity.FPS.Game;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -159,7 +159,11 @@ namespace Unity.FPS.Gameplay
             DebugUtility.HandleErrorIfNullGetComponent<Health, PlayerCharacterController>(m_Health, this, gameObject);
 
             m_Actor = GetComponent<Actor>();
-            DebugUtility.HandleErrorIfNullGetComponent<Actor, PlayerCharacterController>(m_Actor, this, gameObject);
+            if (m_Actor == null)
+            {
+                m_Actor = gameObject.AddComponent<Actor>();
+                m_Actor.Affiliation = 0;
+            }
 
             m_Controller.enableOverlapRecovery = true;
 
@@ -196,12 +200,18 @@ namespace Unity.FPS.Gameplay
                     m_Health.TakeDamage(dmgFromFall, null);
 
                     // fall damage SFX
-                    AudioSource.PlayOneShot(FallDamageSfx);
+                    if (PureAudio.PureAudioEngine.Instance != null)
+                        PureAudio.PureAudioEngine.Instance.PlaySE("Player_Land_Damage", null, 1f);
+                    else
+                        AudioSource.PlayOneShot(FallDamageSfx);
                 }
                 else
                 {
                     // land SFX
-                    AudioSource.PlayOneShot(LandSfx);
+                    if (PureAudio.PureAudioEngine.Instance != null)
+                        PureAudio.PureAudioEngine.Instance.PlaySE("Player_Land", null, 1f);
+                    else
+                        AudioSource.PlayOneShot(LandSfx);
                 }
             }
 
@@ -327,7 +337,10 @@ namespace Unity.FPS.Gameplay
                             CharacterVelocity += Vector3.up * JumpForce;
 
                             // play sound
-                            AudioSource.PlayOneShot(JumpSfx);
+                            if (PureAudio.PureAudioEngine.Instance != null)
+                                PureAudio.PureAudioEngine.Instance.PlaySE("Player_Jump", null, 1f);
+                            else
+                                AudioSource.PlayOneShot(JumpSfx);
 
                             // remember last time we jumped because we need to prevent snapping to ground for a short time
                             m_LastTimeJumped = Time.time;
@@ -345,7 +358,10 @@ namespace Unity.FPS.Gameplay
                     if (m_FootstepDistanceCounter >= 1f / chosenFootstepSfxFrequency)
                     {
                         m_FootstepDistanceCounter = 0f;
-                        AudioSource.PlayOneShot(FootstepSfx);
+                        if (PureAudio.PureAudioEngine.Instance != null)
+                            PureAudio.PureAudioEngine.Instance.PlaySE("Footstep_Dirt", null, 1f);
+                        else
+                            AudioSource.PlayOneShot(FootstepSfx);
                     }
 
                     // keep track of distance traveled for footsteps sound

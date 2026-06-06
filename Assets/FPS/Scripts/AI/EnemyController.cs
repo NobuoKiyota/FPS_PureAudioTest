@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Unity.FPS.Game;
 using UnityEngine;
 using UnityEngine.AI;
@@ -61,7 +61,7 @@ namespace Unity.FPS.AI
         public float FlashOnHitDuration = 0.5f;
 
         [Header("Sounds")] [Tooltip("Sound played when recieving damages")]
-        public AudioClip DamageTick;
+        public PureAudio.PureAudioCue DamageTick;
 
         [Header("VFX")] [Tooltip("The VFX prefab spawned when the enemy dies")]
         public GameObject DeathVfx;
@@ -121,24 +121,50 @@ namespace Unity.FPS.AI
         void Start()
         {
             m_EnemyManager = FindAnyObjectByType<EnemyManager>();
-            DebugUtility.HandleErrorIfNullFindObject<EnemyManager, EnemyController>(m_EnemyManager, this);
+            if (m_EnemyManager == null)
+            {
+                Debug.LogWarning("EnemyManager not found in scene. Enemy will not be tracked in manager, but will still function normally.", gameObject);
+            }
 
             m_ActorsManager = FindAnyObjectByType<ActorsManager>();
             DebugUtility.HandleErrorIfNullFindObject<ActorsManager, EnemyController>(m_ActorsManager, this);
 
-            m_EnemyManager.RegisterEnemy(this);
+            if (m_EnemyManager != null)
+            {
+                m_EnemyManager.RegisterEnemy(this);
+            }
 
             m_Health = GetComponent<Health>();
             DebugUtility.HandleErrorIfNullGetComponent<Health, EnemyController>(m_Health, this, gameObject);
 
             m_Actor = GetComponent<Actor>();
-            DebugUtility.HandleErrorIfNullGetComponent<Actor, EnemyController>(m_Actor, this, gameObject);
+            if (m_Actor == null)
+            {
+                m_Actor = gameObject.AddComponent<Actor>();
+                m_Actor.Affiliation = 1;
+            }
+            else if (m_Actor.Affiliation == 0)
+            {
+                m_Actor.Affiliation = 1;
+            }
 
             NavMeshAgent = GetComponent<NavMeshAgent>();
+            if (NavMeshAgent == null)
+            {
+                DebugUtility.HandleErrorIfNullGetComponent<NavMeshAgent, EnemyController>(NavMeshAgent, this,
+                    gameObject);
+            }
+
             m_SelfColliders = GetComponentsInChildren<Collider>();
 
             m_GameFlowManager = FindAnyObjectByType<GameFlowManager>();
             DebugUtility.HandleErrorIfNullFindObject<GameFlowManager, EnemyController>(m_GameFlowManager, this);
+
+            if (m_Health == null || m_Actor == null || NavMeshAgent == null || m_GameFlowManager == null)
+            {
+                enabled = false;
+                return;
+            }
 
             // Subscribe to damage & death actions
             m_Health.OnDie += OnDie;
@@ -147,21 +173,27 @@ namespace Unity.FPS.AI
             // Find and initialize all weapons
             FindAndInitializeAllWeapons();
             var weapon = GetCurrentWeapon();
-            weapon.ShowWeapon(true);
+            if (weapon != null)
+            {
+                weapon.ShowWeapon(true);
+            }
 
             var detectionModules = GetComponentsInChildren<DetectionModule>();
             DebugUtility.HandleErrorIfNoComponentFound<DetectionModule, EnemyController>(detectionModules.Length, this,
                 gameObject);
             DebugUtility.HandleWarningIfDuplicateObjects<DetectionModule, EnemyController>(detectionModules.Length,
                 this, gameObject);
-            // Initialize detection module
-            DetectionModule = detectionModules[0];
-            DetectionModule.onDetectedTarget += OnDetectedTarget;
-            DetectionModule.onLostTarget += OnLostTarget;
-            onAttack += DetectionModule.OnAttack;
+
+            if (detectionModules.Length > 0)
+            {
+                DetectionModule = detectionModules[0];
+                DetectionModule.onDetectedTarget += OnDetectedTarget;
+                DetectionModule.onLostTarget += OnLostTarget;
+                onAttack += DetectionModule.OnAttack;
+            }
 
             var navigationModules = GetComponentsInChildren<NavigationModule>();
-            DebugUtility.HandleWarningIfDuplicateObjects<DetectionModule, EnemyController>(detectionModules.Length,
+            DebugUtility.HandleWarningIfDuplicateObjects<NavigationModule, EnemyController>(navigationModules.Length,
                 this, gameObject);
             // Override navmesh agent data
             if (navigationModules.Length > 0)
@@ -204,13 +236,22 @@ namespace Unity.FPS.AI
         {
             EnsureIsWithinLevelBounds();
 
-            DetectionModule.HandleTargetDetection(m_Actor, m_SelfColliders);
-
-            Color currentColor = OnHitBodyGradient.Evaluate((Time.time - m_LastTimeDamaged) / FlashOnHitDuration);
-            m_BodyFlashMaterialPropertyBlock.SetColor("_EmissionColor", currentColor);
-            foreach (var data in m_BodyRenderers)
+            if (DetectionModule != null && m_Actor != null)
             {
-                data.Renderer.SetPropertyBlock(m_BodyFlashMaterialPropertyBlock, data.MaterialIndex);
+                DetectionModule.HandleTargetDetection(m_Actor, m_SelfColliders);
+            }
+
+            if (m_BodyFlashMaterialPropertyBlock != null)
+            {
+                Color currentColor = OnHitBodyGradient.Evaluate((Time.time - m_LastTimeDamaged) / FlashOnHitDuration);
+                m_BodyFlashMaterialPropertyBlock.SetColor("_EmissionColor", currentColor);
+                foreach (var data in m_BodyRenderers)
+                {
+                    if (data.Renderer != null)
+                    {
+                        data.Renderer.SetPropertyBlock(m_BodyFlashMaterialPropertyBlock, data.MaterialIndex);
+                    }
+                }
             }
 
             m_WasDamagedThisFrame = false;
@@ -228,7 +269,7 @@ namespace Unity.FPS.AI
 
         void OnLostTarget()
         {
-            onLostTarget.Invoke();
+            onLostTarget?.Invoke();
 
             // Set the eye attack color and property block if the eye renderer is set
             if (m_EyeRendererData.Renderer != null)
@@ -241,7 +282,7 @@ namespace Unity.FPS.AI
 
         void OnDetectedTarget()
         {
-            onDetectedTarget.Invoke();
+            onDetectedTarget?.Invoke();
 
             // Set the eye default color and property block if the eye renderer is set
             if (m_EyeRendererData.Renderer != null)
@@ -277,17 +318,19 @@ namespace Unity.FPS.AI
         {
             if (IsPathValid())
             {
-                int closestPathNodeIndex = 0;
+                int closestPathNodeIndex = -1;
+                float closestDistance = Mathf.Infinity;
                 for (int i = 0; i < PatrolPath.PathNodes.Count; i++)
                 {
                     float distanceToPathNode = PatrolPath.GetDistanceToNode(transform.position, i);
-                    if (distanceToPathNode < PatrolPath.GetDistanceToNode(transform.position, closestPathNodeIndex))
+                    if (distanceToPathNode >= 0f && distanceToPathNode < closestDistance)
                     {
+                        closestDistance = distanceToPathNode;
                         closestPathNodeIndex = i;
                     }
                 }
 
-                m_PathDestinationNodeIndex = closestPathNodeIndex;
+                m_PathDestinationNodeIndex = closestPathNodeIndex >= 0 ? closestPathNodeIndex : 0;
             }
             else
             {
@@ -319,8 +362,10 @@ namespace Unity.FPS.AI
         {
             if (IsPathValid())
             {
-                // Check if reached the path destination
-                if ((transform.position - GetDestinationOnPath()).magnitude <= PathReachingRadius)
+                // Check if reached the path destination (ignoring Y height difference)
+                Vector3 selfPosXZ = new Vector3(transform.position.x, 0f, transform.position.z);
+                Vector3 targetPosXZ = new Vector3(GetDestinationOnPath().x, 0f, GetDestinationOnPath().z);
+                if (Vector3.Distance(selfPosXZ, targetPosXZ) <= PathReachingRadius)
                 {
                     // increment path destination index
                     m_PathDestinationNodeIndex =
@@ -415,7 +460,7 @@ namespace Unity.FPS.AI
                 return false;
 
             // Shoot the weapon
-            bool didFire = GetCurrentWeapon().HandleShootInputs(false, true, false);
+            bool didFire = GetCurrentWeapon().HandleShootInputs(true, true, false);
 
             if (didFire && onAttack != null)
             {
@@ -467,6 +512,11 @@ namespace Unity.FPS.AI
                 SetCurrentWeapon(0);
             }
 
+            if (m_CurrentWeapon == null)
+            {
+                return null;
+            }
+
             DebugUtility.HandleErrorIfNullGetComponent<WeaponController, EnemyController>(m_CurrentWeapon, this,
                 gameObject);
 
@@ -475,6 +525,12 @@ namespace Unity.FPS.AI
 
         void SetCurrentWeapon(int index)
         {
+            if (m_Weapons == null || m_Weapons.Length == 0 || index < 0 || index >= m_Weapons.Length)
+            {
+                m_CurrentWeapon = null;
+                return;
+            }
+
             m_CurrentWeaponIndex = index;
             m_CurrentWeapon = m_Weapons[m_CurrentWeaponIndex];
             if (SwapToNextWeapon)

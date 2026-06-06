@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32b8294e594cc85409260514a0d77350, type: 3}
+  m_Name: Notification_Snap
+  m_EditorClassIdentifier: PureAudio::PureAudio.PureAudioCue
+  cueName: Notification_Snap
+  category: {fileID: 11400000, guid: 15f9a3287371ce04eac4d8401a28b2c3, type: 2}
+  playbackType: 0
+  audioClipReferences: []
+  directAudioClips:
+  - {fileID: 8300000, guid: 7b7dd4eec75ba0f47af69b9224c4f57e, type: 3}
+  volume: 0.7
+  volumeRandomRange: 0
+  pitch: 1
+  pitchRandomRange: 0
+  isLooping: 0
+  loopBeginTime: 0
+  loopEndTime: 0
+  maxVoices: 2
+  limitBehavior: 1
+  priority: 200
+  isAddressable: 0
+  delay: 0
+  attackTime: 0
+  decayTime: 0
+  sustainLevel: 1
+  releaseTime: 0.05
+  spatialBlend: 0
+  override3D: 0
+  minDistance: 1
+  maxDistance: 15
+  rolloffMode: 0
+  modulationSettings: []
+  noRepeatHistoryCount: 0

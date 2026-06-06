@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32b8294e594cc85409260514a0d77350, type: 3}
+  m_Name: Enemy_Hoverbot_Movement
+  m_EditorClassIdentifier: PureAudio::PureAudio.PureAudioCue
+  cueName: Enemy_Hoverbot_Movement
+  category: {fileID: 11400000, guid: 8c2f989f2e1477d40b61547c959d61c8, type: 2}
+  playbackType: 0
+  audioClipReferences: []
+  directAudioClips:
+  - {fileID: 8300000, guid: d9d125a037aa5804eab79af0e44c3ba8, type: 3}
+  volume: 0.5
+  volumeRandomRange: 0
+  pitch: 1
+  pitchRandomRange: 0
+  isLooping: 1
+  loopBeginTime: 0
+  loopEndTime: 0
+  maxVoices: 1
+  limitBehavior: 0
+  priority: 70
+  isAddressable: 0
+  delay: 0
+  attackTime: 0.2
+  decayTime: 0
+  sustainLevel: 1
+  releaseTime: 0.2
+  spatialBlend: 1
+  override3D: 0
+  minDistance: 1
+  maxDistance: 20
+  rolloffMode: 0
+  modulationSettings: []
+  noRepeatHistoryCount: 0

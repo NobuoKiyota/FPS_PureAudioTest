@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using Unity.FPS.Game;
 using UnityEngine;
 using UnityEngine.Events;
@@ -32,6 +32,19 @@ namespace Unity.FPS.AI
 
         protected float TimeLastSeenTarget = Mathf.NegativeInfinity;
 
+        public Vector3 DetectionSourcePosition
+        {
+            get
+            {
+                if (DetectionSourcePoint != null)
+                {
+                    return DetectionSourcePoint.position;
+                }
+                // フォールバック: ルート座標から少し上にずらした位置（目線の高さ）
+                return transform.position + Vector3.up * 1.5f;
+            }
+        }
+
         ActorsManager m_ActorsManager;
 
         const string k_AnimAttackParameter = "Attack";
@@ -41,10 +54,18 @@ namespace Unity.FPS.AI
         {
             m_ActorsManager = FindAnyObjectByType<ActorsManager>();
             DebugUtility.HandleErrorIfNullFindObject<ActorsManager, DetectionModule>(m_ActorsManager, this);
+
+            if (DetectionSourcePoint == null)
+            {
+                DetectionSourcePoint = transform;
+            }
         }
 
         public virtual void HandleTargetDetection(Actor actor, Collider[] selfColliders)
         {
+            if (m_ActorsManager == null || actor == null || DetectionSourcePoint == null)
+                return;
+
             // Handle known target detection timeout
             if (KnownDetectedTarget && !IsSeeingTarget && (Time.time - TimeLastSeenTarget) > KnownTargetTimeout)
             {
@@ -59,19 +80,22 @@ namespace Unity.FPS.AI
             {
                 if (otherActor.Affiliation != actor.Affiliation)
                 {
-                    float sqrDistance = (otherActor.transform.position - DetectionSourcePoint.position).sqrMagnitude;
+                    float sqrDistance = (otherActor.transform.position - DetectionSourcePosition).sqrMagnitude;
                     if (sqrDistance < sqrDetectionRange && sqrDistance < closestSqrDistance)
                     {
+                        Vector3 targetAimPoint = otherActor.AimPoint != null ? otherActor.AimPoint.position : otherActor.transform.position;
                         // Check for obstructions
-                        RaycastHit[] hits = Physics.RaycastAll(DetectionSourcePoint.position,
-                            (otherActor.AimPoint.position - DetectionSourcePoint.position).normalized, DetectionRange,
+                        RaycastHit[] hits = Physics.RaycastAll(DetectionSourcePosition,
+                            (targetAimPoint - DetectionSourcePosition).normalized, DetectionRange,
                             -1, QueryTriggerInteraction.Ignore);
                         RaycastHit closestValidHit = new RaycastHit();
                         closestValidHit.distance = Mathf.Infinity;
                         bool foundValidHit = false;
                         foreach (var hit in hits)
                         {
-                            if (!selfColliders.Contains(hit.collider) && hit.distance < closestValidHit.distance)
+                            if (!selfColliders.Contains(hit.collider) && 
+                                hit.collider.GetComponentInParent<ProjectileBase>() == null && 
+                                hit.distance < closestValidHit.distance)
                             {
                                 closestValidHit = hit;
                                 foundValidHit = true;
@@ -87,7 +111,7 @@ namespace Unity.FPS.AI
                                 closestSqrDistance = sqrDistance;
 
                                 TimeLastSeenTarget = Time.time;
-                                KnownDetectedTarget = otherActor.AimPoint.gameObject;
+                                KnownDetectedTarget = otherActor.AimPoint != null ? otherActor.AimPoint.gameObject : otherActor.gameObject;
                             }
                         }
                     }

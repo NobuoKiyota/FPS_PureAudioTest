@@ -2,10 +2,12 @@
   <Project Path="fps.UI.csproj" />
   <Project Path="fps.Game.csproj" />
   <Project Path="Unity.Microgame.Tutorials.csproj" />
-  <Project Path="NavMeshComponents.csproj" />
-  <Project Path="fps.AI.csproj" />
+  <Project Path="PureAudio.csproj" />
   <Project Path="fps.Gameplay.csproj" />
-  <Project Path="Unity.FPS.Tutorials.csproj" />
+  <Project Path="PureAudio.Editor.csproj" />
   <Project Path="NavMeshComponentsEditor.csproj" />
   <Project Path="fps.Editor.csproj" />
+  <Project Path="fps.AI.csproj" />
+  <Project Path="NavMeshComponents.csproj" />
+  <Project Path="Unity.FPS.Tutorials.csproj" />
 </Solution>

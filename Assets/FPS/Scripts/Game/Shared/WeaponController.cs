@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -119,9 +119,13 @@ namespace Unity.FPS.Game
 
         [Tooltip("sound played when shooting")]
         public AudioClip ShootSfx;
+        [Tooltip("PureAudio用の射撃Cue名")]
+        public string PureAudioShootCue = "Weapon_Blaster_Shot";
 
         [Tooltip("Sound played when changing to this weapon")]
         public AudioClip ChangeWeaponSfx;
+        [Tooltip("PureAudio用の武器変更Cue名")]
+        public string PureAudioChangeCue = "Pickup_Weapon_Small";
 
         [Tooltip("Continuous Shooting Sound")] public bool UseContinuousShootSound = false;
         public AudioClip ContinuousShootStartSfx;
@@ -334,9 +338,16 @@ namespace Unity.FPS.Game
         {
             WeaponRoot.SetActive(show);
 
-            if (show && ChangeWeaponSfx)
+            if (show)
             {
-                m_ShootAudioSource.PlayOneShot(ChangeWeaponSfx);
+                if (PureAudio.PureAudioEngine.Instance != null && !string.IsNullOrEmpty(PureAudioChangeCue))
+                {
+                    PureAudio.PureAudioEngine.Instance.PlaySE(PureAudioChangeCue, null, 1f);
+                }
+                else if (ChangeWeaponSfx != null)
+                {
+                    m_ShootAudioSource.PlayOneShot(ChangeWeaponSfx);
+                }
             }
 
             IsWeaponActive = show;
@@ -346,7 +357,7 @@ namespace Unity.FPS.Game
         {
             m_CurrentAmmo = Mathf.Clamp(m_CurrentAmmo - amount, 0f, MaxAmmo);
             m_CarriedPhysicalBullets -= Mathf.RoundToInt(amount);
-            m_CarriedPhysicalBullets = Mathf.Clamp(m_CarriedPhysicalBullets, 0, MaxAmmo);
+            m_CarriedPhysicalBullets = Mathf.Max(m_CarriedPhysicalBullets, 0);
             m_LastTimeShot = Time.time;
         }
 
@@ -475,9 +486,16 @@ namespace Unity.FPS.Game
             m_LastTimeShot = Time.time;
 
             // play shoot SFX
-            if (ShootSfx && !UseContinuousShootSound)
+            if (!UseContinuousShootSound)
             {
-                m_ShootAudioSource.PlayOneShot(ShootSfx);
+                if (PureAudio.PureAudioEngine.Instance != null && !string.IsNullOrEmpty(PureAudioShootCue))
+                {
+                    PureAudio.PureAudioEngine.Instance.PlaySE3D(PureAudioShootCue, transform.position, 1f);
+                }
+                else if (ShootSfx != null)
+                {
+                    m_ShootAudioSource.PlayOneShot(ShootSfx);
+                }
             }
 
             // Trigger attack animation if there is any
