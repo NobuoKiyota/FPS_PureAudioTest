@@ -18,7 +18,7 @@ MonoBehaviour:
   audioClipReferences: []
   directAudioClips:
   - {fileID: 8300000, guid: 6df1fcea1a3455b4c8d81461dcc914a7, type: 3}
-  volume: 0.4
+  volume: 0.5
   volumeRandomRange: 0
   pitch: 1
   pitchRandomRange: 0
