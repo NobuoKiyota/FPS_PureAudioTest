@@ -14,11 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: PureAudio::PureAudio.PureAudioCue
   cueName: Player_Land
   category: {fileID: 11400000, guid: 8c2f989f2e1477d40b61547c959d61c8, type: 2}
-  playbackType: 0
+  playbackType: 1
   audioClipReferences: []
   directAudioClips:
-  - {fileID: 8300000, guid: e6281a6976e87e449acbee95e5c7c88a, type: 3}
-  volume: 0.6
+  - {fileID: 8300000, guid: 7d11cd143d7fb2b4382174b32a1cf3c6, type: 3}
+  - {fileID: 8300000, guid: 74a42445aa69f4148b4d7e65a8339a28, type: 3}
+  - {fileID: 8300000, guid: 876ca82bbed742348b56aac523008eac, type: 3}
+  - {fileID: 8300000, guid: 24d5cc8ceaffff44f9f65c7eda034d8d, type: 3}
+  volume: 1
   volumeRandomRange: 0
   pitch: 1
   pitchRandomRange: 0
@@ -34,7 +37,7 @@ MonoBehaviour:
   decayTime: 0
   sustainLevel: 1
   releaseTime: 0.05
-  spatialBlend: 1
+  spatialBlend: 0.5
   override3D: 0
   minDistance: 1
   maxDistance: 15

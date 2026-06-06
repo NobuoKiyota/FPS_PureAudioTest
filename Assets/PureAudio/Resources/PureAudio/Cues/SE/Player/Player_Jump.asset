@@ -14,11 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: PureAudio::PureAudio.PureAudioCue
   cueName: Player_Jump
   category: {fileID: 11400000, guid: 8c2f989f2e1477d40b61547c959d61c8, type: 2}
-  playbackType: 0
+  playbackType: 1
   audioClipReferences: []
   directAudioClips:
-  - {fileID: 8300000, guid: 5c4972a180c08b6439f086b956529edc, type: 3}
-  volume: 0.6
+  - {fileID: 8300000, guid: c54689bb2adada34b91c286998c21ef0, type: 3}
+  - {fileID: 8300000, guid: f9c2895a5695df64aa401bc9938978fd, type: 3}
+  - {fileID: 8300000, guid: 8965a3b7267dafb4ead4fc3ae8033b4d, type: 3}
+  - {fileID: 8300000, guid: 71976b30357e179458af1cb330a0a084, type: 3}
+  volume: 0.8
   volumeRandomRange: 0
   pitch: 1
   pitchRandomRange: 0
@@ -34,10 +37,10 @@ MonoBehaviour:
   decayTime: 0
   sustainLevel: 1
   releaseTime: 0.05
-  spatialBlend: 1
+  spatialBlend: 0.5
   override3D: 0
   minDistance: 1
   maxDistance: 15
   rolloffMode: 0
   modulationSettings: []
-  noRepeatHistoryCount: 0
+  noRepeatHistoryCount: 1

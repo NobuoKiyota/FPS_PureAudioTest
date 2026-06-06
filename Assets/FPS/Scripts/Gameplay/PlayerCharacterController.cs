@@ -359,7 +359,7 @@ namespace Unity.FPS.Gameplay
                     {
                         m_FootstepDistanceCounter = 0f;
                         if (PureAudio.PureAudioEngine.Instance != null)
-                            PureAudio.PureAudioEngine.Instance.PlaySE("Footstep_Dirt", null, 1f);
+                            PureAudio.PureAudioEngine.Instance.PlaySE("Footstep_Stone", null, 1f);
                         else
                             AudioSource.PlayOneShot(FootstepSfx);
                     }
