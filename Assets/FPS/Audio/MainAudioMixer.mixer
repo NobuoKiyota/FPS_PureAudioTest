@@ -45,7 +45,7 @@ AudioMixerController:
   m_UpdateMode: 0
   m_ExposedParameters:
   - guid: 28e80d1478ef814489527b945473340b
-    name: MyExposedParam
+    name: AimCutoff
   - guid: 8dff9dea73604914285161ca501649a9
     name: MasterVolume
   m_AudioMixerGroupViews:

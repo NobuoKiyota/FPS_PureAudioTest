@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: PureAudio::PureAudio.PureAudioCategory
   categoryName: BGM
   parentCategory: {fileID: 0}
-  unityMixerGroup: {fileID: 0}
+  unityMixerGroup: {fileID: 2931673184669259304, guid: fcc71635aab95ff4fbdf1880bf2afa2f,
+    type: 2}
   volume: 1
   maxVoices: 0
   isMuted: 0
